@@ -1141,3 +1141,45 @@ body {
     height: 14px;
   }
 }
+
+/* Backup Footer */
+.backup-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border-light);
+}
+
+.backup-btn {
+  font-family: 'Lora', serif;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backup-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-medium);
+  background: var(--bg-cream);
+}
+
+@media (max-width: 480px) {
+  .backup-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    gap: 8px;
+  }
+
+  .backup-btn {
+    font-size: 0.65rem;
+    padding: 5px 10px;
+  }
+}

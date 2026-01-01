@@ -22,6 +22,61 @@ function App() {
   const [todayNotes, setTodayNotes] = useState('')
   const [calendarExpanded, setCalendarExpanded] = useState(false)
 
+  // Export/Backup functionality
+  const handleExport = () => {
+    const backupData = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      data: {
+        goal: goal,
+        entries: entries,
+        weeklyGoals: weeklyGoals,
+        monthlyGoals: monthlyGoals,
+        todayNotes: todayNotes
+      }
+    }
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `goal-planner-backup-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  // Import functionality
+  const handleImport = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const backupData = JSON.parse(e.target.result)
+
+        if (backupData.data) {
+          if (backupData.data.goal !== undefined) setGoal(backupData.data.goal)
+          if (backupData.data.entries) setEntries(backupData.data.entries)
+          if (backupData.data.weeklyGoals) setWeeklyGoals(backupData.data.weeklyGoals)
+          if (backupData.data.monthlyGoals) setMonthlyGoals(backupData.data.monthlyGoals)
+          if (backupData.data.todayNotes !== undefined) setTodayNotes(backupData.data.todayNotes)
+          alert('Data imported successfully!')
+        } else {
+          alert('Invalid backup file format.')
+        }
+      } catch (error) {
+        alert('Error reading backup file. Please ensure it is a valid JSON file.')
+        console.error('Import error:', error)
+      }
+    }
+    reader.readAsText(file)
+    // Reset file input so the same file can be imported again if needed
+    event.target.value = ''
+  }
+
   // Get today's date key for notes
   const getTodayKey = () => {
     const today = new Date()
@@ -518,6 +573,23 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* Backup Footer */}
+        <div className="backup-footer">
+          <input
+            type="file"
+            id="import-file"
+            accept=".json"
+            onChange={handleImport}
+            style={{ display: 'none' }}
+          />
+          <button className="backup-btn" onClick={handleExport} title="Export data as backup">
+            ↓ Export
+          </button>
+          <button className="backup-btn" onClick={() => document.getElementById('import-file').click()} title="Import data from backup">
+            ↑ Import
+          </button>
+        </div>
       </div>
     </div>
   )
