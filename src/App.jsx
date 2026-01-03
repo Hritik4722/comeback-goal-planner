@@ -490,12 +490,12 @@ function App() {
             <h3 className="stats-box-title">Momentum</h3>
             <div className="stats-grid">
               <div className={`stat-item stat-${getStreakStatus()}`}>
-                <span className="stat-info" title="How many productive days in a row you have right now.">ⓘ</span>
+                <span className="stat-info" data-tooltip="How many productive days in a row you have right now." tabIndex="0">ⓘ</span>
                 <span className="stat-value">{currentStreak}</span>
                 <span className="stat-label">current streak</span>
               </div>
               <div className={`stat-item stat-${getAchievedMissedStatus()}`}>
-                <span className="stat-info" title="Total productive days vs unproductive days this year.">ⓘ</span>
+                <span className="stat-info" data-tooltip="Total productive days vs unproductive days this year." tabIndex="0">ⓘ</span>
                 <div className="stat-combined">
                   <span className="stat-value success">{successCells}</span>
                   <span className="stat-separator">/</span>
@@ -504,12 +504,12 @@ function App() {
                 <span className="stat-label">productive / Unproductive</span>
               </div>
               <div className={`stat-item stat-${getMonthStatus()}`}>
-                <span className="stat-info" title="Productive days so far this month.">ⓘ</span>
+                <span className="stat-info" data-tooltip="Productive days so far this month." tabIndex="0">ⓘ</span>
                 <span className="stat-value">{thisMonthStats.achieved}<span className="stat-small"> / {thisMonthStats.elapsed}</span></span>
                 <span className="stat-label">this month</span>
               </div>
               <div className={`stat-item stat-${getConsistencyStatus()}`}>
-                <span className="stat-info" title="How often you stay productive since the start of the year.">ⓘ</span>
+                <span className="stat-info" data-tooltip="How often you stay productive since the start of the year." tabIndex="0">ⓘ</span>
                 <span className="stat-value">{consistency}%</span>
                 <span className="stat-label">consistency</span>
               </div>
