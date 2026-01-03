@@ -543,7 +543,7 @@ function App() {
         </div>
 
         {/* Mini Calendars Section */}
-        <div className="mini-calendars-section">
+        <div className={`mini-calendars-section ${calendarExpanded ? 'expanded' : ''}`}>
           <div className="mini-calendars-header">
             <h3 className="mini-calendars-title">Year Overview</h3>
             <button
@@ -554,14 +554,33 @@ function App() {
             </button>
           </div>
 
-          {/* First Row - Always Visible (Jan - Jun) */}
+          {/* All 12 months in a single grid */}
           <div className="mini-calendars-grid">
-            {MONTHS.slice(0, 6).map((month, monthIndex) => {
+            {MONTHS.map((month, monthIndex) => {
               const daysInMonth = DAYS_IN_MONTH[monthIndex]
               const firstDayOfMonth = new Date(2026, monthIndex, 1).getDay()
+              const currentMonth = new Date().getMonth()
+
+              // Calculate which row this month belongs to for each screen size
+              const mobileRow = Math.floor(monthIndex / 2)  // 2 per row
+              const tabletRow = Math.floor(monthIndex / 3)  // 3 per row
+              const desktopRow = Math.floor(monthIndex / 6) // 6 per row
+
+              // Calculate which row the current month is in
+              const currentMobileRow = Math.floor(currentMonth / 2)
+              const currentTabletRow = Math.floor(currentMonth / 3)
+              const currentDesktopRow = Math.floor(currentMonth / 6)
+
+              // Add classes for visibility control
+              const isCurrentMobileRow = mobileRow === currentMobileRow
+              const isCurrentTabletRow = tabletRow === currentTabletRow
+              const isCurrentDesktopRow = desktopRow === currentDesktopRow
 
               return (
-                <div key={month} className="mini-calendar">
+                <div
+                  key={month}
+                  className={`mini-calendar ${isCurrentMobileRow ? 'current-mobile-row' : ''} ${isCurrentTabletRow ? 'current-tablet-row' : ''} ${isCurrentDesktopRow ? 'current-desktop-row' : ''}`}
+                >
                   <div className="mini-calendar-header">{month.substring(0, 3)}</div>
                   <div className="mini-calendar-weekdays">
                     {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
@@ -593,49 +612,6 @@ function App() {
               )
             })}
           </div>
-
-          {/* Second Row - Expandable (Jul - Dec) */}
-          {calendarExpanded && (
-            <div className="mini-calendars-grid second-row">
-              {MONTHS.slice(6, 12).map((month, idx) => {
-                const monthIndex = idx + 6
-                const daysInMonth = DAYS_IN_MONTH[monthIndex]
-                const firstDayOfMonth = new Date(2026, monthIndex, 1).getDay()
-
-                return (
-                  <div key={month} className="mini-calendar">
-                    <div className="mini-calendar-header">{month.substring(0, 3)}</div>
-                    <div className="mini-calendar-weekdays">
-                      {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                        <span key={i} className="mini-weekday">{day}</span>
-                      ))}
-                    </div>
-                    <div className="mini-calendar-days">
-                      {Array.from({ length: firstDayOfMonth }, (_, i) => (
-                        <span key={`empty-${i}`} className="mini-day empty"></span>
-                      ))}
-                      {Array.from({ length: daysInMonth }, (_, i) => {
-                        const day = i + 1
-                        const key = getCellKey(monthIndex, day)
-                        const entry = entries[key]
-                        const status = entry?.status || ''
-
-                        return (
-                          <span
-                            key={day}
-                            className={`mini-day ${status}`}
-                            title={`${month} ${day}: ${entry?.text || 'No entry'}`}
-                          >
-                            {day}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
         </div>
 
         <div className="grid-container">

@@ -518,8 +518,18 @@ body {
   gap: 12px;
 }
 
-.mini-calendars-grid.second-row {
-  margin-top: 12px;
+/* Desktop: Hide all calendars by default, show only current row */
+.mini-calendars-grid .mini-calendar {
+  display: none;
+}
+
+.mini-calendars-grid .mini-calendar.current-desktop-row {
+  display: block;
+}
+
+/* Show all calendars when expanded */
+.mini-calendars-section.expanded .mini-calendars-grid .mini-calendar {
+  display: block;
 }
 
 .mini-calendar {
@@ -1084,17 +1094,17 @@ body {
   }
 
   .mini-calendars-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
 
-  /* Hide months 4-6 on mobile when not expanded */
-  .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+4) {
+  /* Hide months 3-6 on mobile when not expanded */
+  .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+3) {
     display: none;
   }
 
   /* Show all when a sibling second-row exists (meaning expanded) */
-  .mini-calendars-section:has(.second-row) .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+4) {
+  .mini-calendars-section:has(.second-row) .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+3) {
     display: block;
   }
 
@@ -1465,8 +1475,8 @@ body {
   }
 }
 
-/* Responsive Dashboard - Mobile */
-@media (max-width: 600px) {
+/* Responsive Dashboard - Mobile and Tablet */
+@media (max-width: 900px) {
   .stats-box-title {
     font-size: 0.95rem;
     margin-bottom: 14px;
@@ -1545,5 +1555,45 @@ body {
   .guide-step p {
     font-size: 0.8rem;
     line-height: 1.45;
+  }
+
+  /* Mini calendar - bigger text on mobile */
+  .mini-calendar-header {
+    font-size: 0.9rem;
+  }
+
+  .mini-weekday {
+    font-size: 0.6rem;
+  }
+
+  .mini-day {
+    font-size: 0.7rem;
+  }
+
+  .mini-calendars-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  /* Mobile: Hide all calendars except first row (first 2) by default */
+  .mini-calendars-grid .mini-calendar {
+    display: none;
+  }
+
+  .mini-calendars-grid .mini-calendar:nth-child(-n+2) {
+    display: block;
+  }
+
+  /* Show all calendars when expanded */
+  .mini-calendars-section.expanded .mini-calendars-grid .mini-calendar {
+    display: block;
+  }
+
+  .mini-calendars-title {
+    font-size: 0.9rem;
+  }
+
+  .expand-toggle-btn {
+    font-size: 0.7rem;
   }
 }
