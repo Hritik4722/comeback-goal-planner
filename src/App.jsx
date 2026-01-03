@@ -200,25 +200,127 @@ function App() {
   }
 
   const dailyEntries = Object.values(entries)
-  const totalCells = dailyEntries.length
   const successCells = dailyEntries.filter(e => e.status === 'success').length
   const failureCells = dailyEntries.filter(e => e.status === 'failure').length
 
-  // Yearly rate calculation (achieved goals out of 365 days)
-  const yearlyRate = Math.round((successCells / 365) * 100)
+  // Helper: Convert date to entry key format (month-day)
+  const dateToKey = (date) => `${date.getMonth()}-${date.getDate()}`
 
-  // Monthly rate calculation (for current month)
-  const currentMonth = new Date().getMonth()
-  const monthlyEntries = Object.entries(entries).filter(([key]) => {
-    const monthIndex = parseInt(key.split('-')[0])
-    return monthIndex === currentMonth
-  }).map(([, value]) => value)
+  // Helper: Get entry status for a date
+  const getEntryStatus = (date) => {
+    const key = dateToKey(date)
+    return entries[key]?.status || null
+  }
 
-  const monthlySuccess = monthlyEntries.filter(e => e.status === 'success').length
-  const monthlyFailure = monthlyEntries.filter(e => e.status === 'failure').length
-  const monthlyRate = (monthlySuccess + monthlyFailure) > 0
-    ? Math.round((monthlySuccess / (monthlySuccess + monthlyFailure)) * 100)
-    : 0
+  // Current Streak: consecutive ACHIEVED days backward from today
+  // Stops when hitting a MISSED day (not empty/pending)
+  const calculateStreak = () => {
+    let streak = 0
+    const today = new Date()
+    let currentDate = new Date(today)
+    currentDate.setHours(0, 0, 0, 0)
+
+    while (true) {
+      const status = getEntryStatus(currentDate)
+
+      if (status === 'success') {
+        // Achieved day - add to streak
+        streak++
+        currentDate.setDate(currentDate.getDate() - 1)
+      } else if (status === 'failure') {
+        // Missed day - streak breaks here
+        break
+      } else {
+        // Empty/pending/not logged - skip this day, check previous
+        // But if we haven't started counting yet, just go back
+        if (streak === 0) {
+          currentDate.setDate(currentDate.getDate() - 1)
+          // Don't go before Jan 1, 2026
+          if (currentDate.getFullYear() < 2026) break
+        } else {
+          // We already have a streak, empty day doesn't break it
+          // but we stop counting here
+          break
+        }
+      }
+    }
+    return streak
+  }
+  const currentStreak = calculateStreak()
+
+  // This Week: ACHIEVED days in current week (Sunday to Saturday)
+  const calculateThisWeek = () => {
+    const today = new Date()
+    const dayOfWeek = today.getDay() // 0 = Sunday
+    const startOfWeek = new Date(today)
+    startOfWeek.setDate(today.getDate() - dayOfWeek)
+    startOfWeek.setHours(0, 0, 0, 0)
+
+    let achievedDays = 0
+    // Only count up to today, not future days
+    for (let i = 0; i <= dayOfWeek; i++) {
+      const checkDate = new Date(startOfWeek)
+      checkDate.setDate(startOfWeek.getDate() + i)
+      // Only count if year is 2026 and status is success
+      if (checkDate.getFullYear() === 2026) {
+        const status = getEntryStatus(checkDate)
+        if (status === 'success') {
+          achievedDays++
+        }
+      }
+    }
+    return achievedDays
+  }
+  const thisWeekActive = calculateThisWeek()
+
+  // Consistency: percentage of ACHIEVED days over elapsed days
+  // elapsed = days from Jan 1, 2026 to today (inclusive)
+  const calculateConsistency = () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const startOfYear = new Date(2026, 0, 1) // Jan 1, 2026
+
+    // Calculate elapsed days (from Jan 1 to today, inclusive)
+    const msPerDay = 24 * 60 * 60 * 1000
+    const elapsedDays = Math.floor((today - startOfYear) / msPerDay) + 1
+
+    if (elapsedDays <= 0) return 0
+
+    // Count achieved days in elapsed period
+    let achievedDays = 0
+    for (let i = 0; i < elapsedDays; i++) {
+      const checkDate = new Date(startOfYear)
+      checkDate.setDate(startOfYear.getDate() + i)
+      const status = getEntryStatus(checkDate)
+      if (status === 'success') {
+        achievedDays++
+      }
+    }
+
+    return Math.round((achievedDays / elapsedDays) * 100)
+  }
+  const consistency = calculateConsistency()
+
+  // Status colors for momentum indicators
+  const getStreakStatus = () => {
+    if (currentStreak === 0) return 'danger'
+    if (currentStreak >= 7) return 'success'
+    if (currentStreak >= 3) return 'warning'
+    return 'neutral'
+  }
+
+  const getWeekStatus = () => {
+    if (thisWeekActive >= 5) return 'success'
+    if (thisWeekActive >= 3) return 'warning'
+    if (thisWeekActive === 0) return 'danger'
+    return 'neutral'
+  }
+
+  const getConsistencyStatus = () => {
+    if (consistency >= 70) return 'success'
+    if (consistency >= 40) return 'warning'
+    return 'danger'
+  }
 
   const buildGridRows = () => {
     const rows = []
@@ -248,6 +350,18 @@ function App() {
     } else {
       return `${MONTHS[selectedCell.month]} ${selectedCell.day}, 2026`
     }
+  }
+
+  // Check if selected cell date is in the future (for daily entries only)
+  const isSelectedDateFuture = () => {
+    if (!selectedCell || modalType !== 'daily') return false
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const selectedDate = new Date(2026, selectedCell.month, selectedCell.day)
+    selectedDate.setHours(0, 0, 0, 0)
+
+    return selectedDate > today
   }
 
   // Render a single row of cells for day/weekly/monthly
@@ -305,7 +419,7 @@ function App() {
 
     return [
       <div key={`label-week-${row.week}`} className="grid-week-label">
-        WG{row.week}
+        Goal{row.week}
       </div>,
       ...cells
     ]
@@ -351,17 +465,25 @@ function App() {
               onChange={(e) => setGoal(e.target.value)}
             />
           </div>
+          <div className="header-year-progress">
+            <div className="header-progress-bar">
+              <div
+                className="header-progress-fill"
+                style={{ width: `${((Math.floor((new Date() - new Date(2026, 0, 1)) / (24 * 60 * 60 * 1000)) + 1) / 365) * 100}%` }}
+              ></div>
+            </div>
+          </div>
         </header>
 
         {/* Stats and Today's Goals Row */}
         <div className="dashboard-row">
           {/* Left: Stats Box */}
           <div className="stats-box">
-            <h3 className="stats-box-title">Progress</h3>
+            <h3 className="stats-box-title">Momentum</h3>
             <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-value">{totalCells}</span>
-                <span className="stat-label">tracked</span>
+              <div className={`stat-item stat-${getStreakStatus()}`}>
+                <span className="stat-value">{currentStreak}</span>
+                <span className="stat-label">current streak</span>
               </div>
               <div className="stat-item">
                 <div className="stat-combined">
@@ -371,29 +493,37 @@ function App() {
                 </div>
                 <span className="stat-label">achieved / missed</span>
               </div>
-              <div className="stat-item">
-                <span className="stat-value">{monthlyRate}%</span>
-                <span className="stat-label">{MONTHS[currentMonth]} rate</span>
+              <div className={`stat-item stat-${getWeekStatus()}`}>
+                <span className="stat-value">{thisWeekActive}<span className="stat-small"> / 7</span></span>
+                <span className="stat-label">this week</span>
               </div>
-              <div className="stat-item">
-                <span className="stat-value">{yearlyRate}%</span>
-                <span className="stat-label">yearly rate</span>
+              <div className={`stat-item stat-${getConsistencyStatus()}`}>
+                <span className="stat-value">{consistency}%</span>
+                <span className="stat-label">consistency</span>
               </div>
             </div>
-            <div className="progress-bar-mini">
-              <div className="progress-bar-mini-fill" style={{ width: `${monthlyRate}%` }}></div>
+            <div className="month-progress">
+              <div className="month-progress-text">
+                <span>{DAYS_IN_MONTH[new Date().getMonth()] - new Date().getDate()} days remaining in {MONTHS[new Date().getMonth()]}</span>
+              </div>
+              <div className="month-progress-bar">
+                <div
+                  className="month-progress-fill"
+                  style={{ width: `${(new Date().getDate() / DAYS_IN_MONTH[new Date().getMonth()]) * 100}%` }}
+                ></div>
+              </div>
             </div>
           </div>
 
           {/* Right: Today's Goals */}
           <div className="today-goals-box">
             <div className="today-header">
-              <h3 className="today-goals-title">Today</h3>
+              <h3 className="today-goals-title">Today's Plan...</h3>
               <span className="today-date">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
             </div>
             <textarea
               className="today-notes-input"
-              placeholder="Your goals for today..."
+              placeholder="What do you want to achieve tomorrow?, Set plans..."
               value={todayNotes}
               onChange={(e) => setTodayNotes(e.target.value)}
             />
@@ -529,12 +659,9 @@ function App() {
             </div>
             <div className="legend-item">
               <div className="legend-color pending"></div>
-              <span>Pending/Empty</span>
+              <span>Pending</span>
             </div>
-            <div className="legend-item">
-              <span style={{ fontWeight: 600 }}>WG</span>
-              <span>= Weekly Goal</span>
-            </div>
+
             <div className="legend-item">
               <span style={{ fontWeight: 600 }}>MG</span>
               <span>= Monthly Goal</span>
@@ -560,14 +687,16 @@ function App() {
 
               <div className="status-buttons">
                 <button
-                  className={`status-btn success ${modalStatus === 'success' ? 'active' : ''}`}
-                  onClick={() => setModalStatus('success')}
+                  className={`status-btn success ${modalStatus === 'success' ? 'active' : ''} ${isSelectedDateFuture() ? 'disabled' : ''}`}
+                  onClick={() => !isSelectedDateFuture() && setModalStatus('success')}
+                  disabled={isSelectedDateFuture()}
                 >
                   Achieved
                 </button>
                 <button
-                  className={`status-btn failure ${modalStatus === 'failure' ? 'active' : ''}`}
-                  onClick={() => setModalStatus('failure')}
+                  className={`status-btn failure ${modalStatus === 'failure' ? 'active' : ''} ${isSelectedDateFuture() ? 'disabled' : ''}`}
+                  onClick={() => !isSelectedDateFuture() && setModalStatus('failure')}
+                  disabled={isSelectedDateFuture()}
                 >
                   Missed
                 </button>

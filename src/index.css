@@ -148,6 +148,34 @@ body {
   color: var(--text-muted);
 }
 
+/* Header Year Progress Bar */
+.header-year-progress {
+  max-width: 500px;
+  margin: 24px auto 0;
+}
+
+.header-progress-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.header-progress-bar {
+  height: 10px;
+  background: var(--bg-cream);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+
+.header-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-forest) 0%, var(--color-forest-light) 100%);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
 /* Dashboard Row - Stats + Today's Goals */
 .dashboard-row {
   display: grid;
@@ -232,16 +260,95 @@ body {
   font-weight: 400;
 }
 
-.progress-bar-mini {
+.stat-small {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Momentum Status Colors */
+.stat-item.stat-success {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.stat-item.stat-success .stat-value {
+  color: var(--color-success);
+}
+
+.stat-item.stat-warning {
+  border-color: #D4A017;
+  background: #FEF9E7;
+}
+
+.stat-item.stat-warning .stat-value {
+  color: #C9971A;
+}
+
+.stat-item.stat-danger {
+  border-color: var(--color-failure);
+  background: var(--color-failure-bg);
+}
+
+.stat-item.stat-danger .stat-value {
+  color: var(--color-failure);
+}
+
+.stat-item.stat-neutral {
+  border-color: var(--border-light);
+  background: var(--bg-paper);
+}
+
+/* Month Progress Bar */
+.month-progress {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.month-progress-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.month-progress-bar {
   height: 8px;
   background: var(--bg-cream);
   border-radius: 4px;
   overflow: hidden;
-  margin-top: 16px;
   border: 1px solid var(--border-light);
 }
 
-.progress-bar-mini-fill {
+.month-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-burgundy) 0%, var(--color-burgundy-dark) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Year Progress Bar */
+.year-progress {
+  margin-top: 12px;
+}
+
+.year-progress-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.year-progress-bar {
+  height: 8px;
+  background: var(--bg-cream);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+
+.year-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--color-forest) 0%, var(--color-forest-light) 100%);
   border-radius: 4px;
@@ -706,6 +813,31 @@ body {
 .status-btn.pending:hover {
   background: var(--text-muted);
   color: white;
+}
+
+/* Disabled state for future dates */
+.status-btn.disabled,
+.status-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.status-btn.disabled:hover,
+.status-btn:disabled:hover {
+  transform: none;
+  background: var(--bg-paper);
+}
+
+.future-date-notice {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px;
+  background: #FEF9E7;
+  border: 1px solid #D4A017;
+  border-radius: 8px;
+  margin-bottom: 16px;
 }
 
 .modal-actions {
