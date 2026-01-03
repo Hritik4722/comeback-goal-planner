@@ -500,7 +500,7 @@ function App() {
                   <span className="stat-separator">/</span>
                   <span className="stat-value failure">{failureCells}</span>
                 </div>
-                <span className="stat-label">achieved / missed</span>
+                <span className="stat-label">productive / Unproductive</span>
               </div>
               <div className={`stat-item stat-${getWeekStatus()}`}>
                 <span className="stat-value">{thisWeekActive}<span className="stat-small"> / 7</span></span>
@@ -700,14 +700,14 @@ function App() {
                   onClick={() => !isSelectedDateFuture() && setModalStatus('success')}
                   disabled={isSelectedDateFuture()}
                 >
-                  Achieved
+                  Productive day
                 </button>
                 <button
                   className={`status-btn failure ${modalStatus === 'failure' ? 'active' : ''} ${isSelectedDateFuture() ? 'disabled' : ''}`}
                   onClick={() => !isSelectedDateFuture() && setModalStatus('failure')}
                   disabled={isSelectedDateFuture()}
                 >
-                  Missed
+                  Unproductive day
                 </button>
                 <button
                   className={`status-btn pending ${modalStatus === 'pending' ? 'active' : ''}`}

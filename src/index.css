@@ -266,37 +266,21 @@ body {
   color: var(--text-muted);
 }
 
-/* Momentum Status Colors */
-.stat-item.stat-success {
-  border-color: var(--color-success);
-  background: var(--color-success-bg);
-}
-
+/* Momentum Status Colors - Text only */
 .stat-item.stat-success .stat-value {
   color: var(--color-success);
-}
-
-.stat-item.stat-warning {
-  border-color: #D4A017;
-  background: #FEF9E7;
 }
 
 .stat-item.stat-warning .stat-value {
   color: #C9971A;
 }
 
-.stat-item.stat-danger {
-  border-color: var(--color-failure);
-  background: var(--color-failure-bg);
-}
-
 .stat-item.stat-danger .stat-value {
   color: var(--color-failure);
 }
 
-.stat-item.stat-neutral {
-  border-color: var(--border-light);
-  background: var(--bg-paper);
+.stat-item.stat-neutral .stat-value {
+  color: var(--color-burgundy);
 }
 
 /* Month Progress Bar */
@@ -772,7 +756,7 @@ body {
   border: 2px solid var(--border-medium);
   border-radius: 8px;
   font-family: 'Lora', serif;
-  font-size: 0.95rem;
+  font-size: 0.70rem;
   cursor: pointer;
   transition: all 0.2s ease;
   background: var(--bg-paper);
@@ -1327,5 +1311,64 @@ body {
   .backup-btn {
     font-size: 0.65rem;
     padding: 5px 10px;
+  }
+}
+
+/* Responsive Dashboard - Tablet and below */
+@media (max-width: 900px) {
+  .dashboard-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Reorder: Today's Plan first, then Momentum */
+  .stats-box {
+    order: 2;
+  }
+
+  .today-goals-box {
+    order: 1;
+  }
+}
+
+/* Responsive Dashboard - Mobile */
+@media (max-width: 600px) {
+  .stats-box-title {
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+  }
+
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-item {
+    padding: 10px 6px;
+  }
+
+  .stat-item .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .stat-item .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .stat-separator {
+    font-size: 1rem;
+  }
+
+  .stat-small {
+    font-size: 0.75rem;
+  }
+
+  .month-progress-text {
+    font-size: 0.7rem;
+  }
+
+  .today-notes-input {
+    min-height: 120px;
+    font-size: 0.9rem;
   }
 }
