@@ -199,12 +199,25 @@ function App() {
     setModalStatus('pending')
   }
 
-  const allEntries = [...Object.values(entries), ...Object.values(weeklyGoals), ...Object.values(monthlyGoals)]
-  const totalCells = allEntries.length
-  const successCells = allEntries.filter(e => e.status === 'success').length
-  const failureCells = allEntries.filter(e => e.status === 'failure').length
-  const progressPercentage = (successCells + failureCells) > 0
-    ? Math.round((successCells / (successCells + failureCells)) * 100)
+  const dailyEntries = Object.values(entries)
+  const totalCells = dailyEntries.length
+  const successCells = dailyEntries.filter(e => e.status === 'success').length
+  const failureCells = dailyEntries.filter(e => e.status === 'failure').length
+
+  // Yearly rate calculation (achieved goals out of 365 days)
+  const yearlyRate = Math.round((successCells / 365) * 100)
+
+  // Monthly rate calculation (for current month)
+  const currentMonth = new Date().getMonth()
+  const monthlyEntries = Object.entries(entries).filter(([key]) => {
+    const monthIndex = parseInt(key.split('-')[0])
+    return monthIndex === currentMonth
+  }).map(([, value]) => value)
+
+  const monthlySuccess = monthlyEntries.filter(e => e.status === 'success').length
+  const monthlyFailure = monthlyEntries.filter(e => e.status === 'failure').length
+  const monthlyRate = (monthlySuccess + monthlyFailure) > 0
+    ? Math.round((monthlySuccess / (monthlySuccess + monthlyFailure)) * 100)
     : 0
 
   const buildGridRows = () => {
@@ -351,20 +364,24 @@ function App() {
                 <span className="stat-label">tracked</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value success">{successCells}</span>
-                <span className="stat-label">achieved</span>
+                <div className="stat-combined">
+                  <span className="stat-value success">{successCells}</span>
+                  <span className="stat-separator">/</span>
+                  <span className="stat-value failure">{failureCells}</span>
+                </div>
+                <span className="stat-label">achieved / missed</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value failure">{failureCells}</span>
-                <span className="stat-label">missed</span>
+                <span className="stat-value">{monthlyRate}%</span>
+                <span className="stat-label">{MONTHS[currentMonth]} rate</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">{progressPercentage}%</span>
-                <span className="stat-label">rate</span>
+                <span className="stat-value">{yearlyRate}%</span>
+                <span className="stat-label">yearly rate</span>
               </div>
             </div>
             <div className="progress-bar-mini">
-              <div className="progress-bar-mini-fill" style={{ width: `${progressPercentage}%` }}></div>
+              <div className="progress-bar-mini-fill" style={{ width: `${monthlyRate}%` }}></div>
             </div>
           </div>
 

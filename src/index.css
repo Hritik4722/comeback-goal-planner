@@ -218,6 +218,20 @@ body {
   margin-top: 4px;
 }
 
+.stat-combined {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.stat-separator {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .progress-bar-mini {
   height: 8px;
   background: var(--bg-cream);
