@@ -322,6 +322,15 @@ function App() {
     return 'danger'
   }
 
+  const getAchievedMissedStatus = () => {
+    const total = successCells + failureCells
+    if (total === 0) return 'neutral'
+    const ratio = successCells / total
+    if (ratio >= 0.7) return 'success'
+    if (ratio >= 0.4) return 'warning'
+    return 'danger'
+  }
+
   const buildGridRows = () => {
     const rows = []
     let weekNumber = 1
@@ -485,7 +494,7 @@ function App() {
                 <span className="stat-value">{currentStreak}</span>
                 <span className="stat-label">current streak</span>
               </div>
-              <div className="stat-item">
+              <div className={`stat-item stat-${getAchievedMissedStatus()}`}>
                 <div className="stat-combined">
                   <span className="stat-value success">{successCells}</span>
                   <span className="stat-separator">/</span>
