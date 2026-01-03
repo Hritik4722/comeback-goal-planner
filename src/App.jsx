@@ -248,30 +248,24 @@ function App() {
   }
   const currentStreak = calculateStreak()
 
-  // This Week: ACHIEVED days in current week (Sunday to Saturday)
-  const calculateThisWeek = () => {
+  // This Month: ACHIEVED days in current month vs elapsed days
+  const calculateThisMonth = () => {
     const today = new Date()
-    const dayOfWeek = today.getDay() // 0 = Sunday
-    const startOfWeek = new Date(today)
-    startOfWeek.setDate(today.getDate() - dayOfWeek)
-    startOfWeek.setHours(0, 0, 0, 0)
+    const currentMonth = today.getMonth()
+    const currentDay = today.getDate()
 
     let achievedDays = 0
-    // Only count up to today, not future days
-    for (let i = 0; i <= dayOfWeek; i++) {
-      const checkDate = new Date(startOfWeek)
-      checkDate.setDate(startOfWeek.getDate() + i)
-      // Only count if year is 2026 and status is success
-      if (checkDate.getFullYear() === 2026) {
-        const status = getEntryStatus(checkDate)
-        if (status === 'success') {
-          achievedDays++
-        }
+    // Count achieved days from day 1 to today in current month
+    for (let day = 1; day <= currentDay; day++) {
+      const checkDate = new Date(2026, currentMonth, day)
+      const status = getEntryStatus(checkDate)
+      if (status === 'success') {
+        achievedDays++
       }
     }
-    return achievedDays
+    return { achieved: achievedDays, elapsed: currentDay }
   }
-  const thisWeekActive = calculateThisWeek()
+  const thisMonthStats = calculateThisMonth()
 
   // Consistency: percentage of ACHIEVED days over elapsed days
   // elapsed = days from Jan 1, 2026 to today (inclusive)
@@ -309,10 +303,11 @@ function App() {
     return 'neutral'
   }
 
-  const getWeekStatus = () => {
-    if (thisWeekActive >= 5) return 'success'
-    if (thisWeekActive >= 3) return 'warning'
-    if (thisWeekActive === 0) return 'danger'
+  const getMonthStatus = () => {
+    const ratio = thisMonthStats.elapsed > 0 ? thisMonthStats.achieved / thisMonthStats.elapsed : 0
+    if (ratio >= 0.7) return 'success'
+    if (ratio >= 0.4) return 'warning'
+    if (ratio === 0) return 'danger'
     return 'neutral'
   }
 
@@ -491,10 +486,12 @@ function App() {
             <h3 className="stats-box-title">Momentum</h3>
             <div className="stats-grid">
               <div className={`stat-item stat-${getStreakStatus()}`}>
+                <span className="stat-info" title="How many productive days in a row you have right now.">ⓘ</span>
                 <span className="stat-value">{currentStreak}</span>
                 <span className="stat-label">current streak</span>
               </div>
               <div className={`stat-item stat-${getAchievedMissedStatus()}`}>
+                <span className="stat-info" title="Total productive days vs unproductive days this year.">ⓘ</span>
                 <div className="stat-combined">
                   <span className="stat-value success">{successCells}</span>
                   <span className="stat-separator">/</span>
@@ -502,11 +499,13 @@ function App() {
                 </div>
                 <span className="stat-label">productive / Unproductive</span>
               </div>
-              <div className={`stat-item stat-${getWeekStatus()}`}>
-                <span className="stat-value">{thisWeekActive}<span className="stat-small"> / 7</span></span>
-                <span className="stat-label">this week</span>
+              <div className={`stat-item stat-${getMonthStatus()}`}>
+                <span className="stat-info" title="Productive days so far this month.">ⓘ</span>
+                <span className="stat-value">{thisMonthStats.achieved}<span className="stat-small"> / {thisMonthStats.elapsed}</span></span>
+                <span className="stat-label">this month</span>
               </div>
               <div className={`stat-item stat-${getConsistencyStatus()}`}>
+                <span className="stat-info" title="How often you stay productive since the start of the year.">ⓘ</span>
                 <span className="stat-value">{consistency}%</span>
                 <span className="stat-label">consistency</span>
               </div>
@@ -532,7 +531,7 @@ function App() {
             </div>
             <textarea
               className="today-notes-input"
-              placeholder="What do you want to achieve tomorrow?, Set plans..."
+              placeholder="What do you want to achieve tomorrow?, Set plans today..."
               value={todayNotes}
               onChange={(e) => setTodayNotes(e.target.value)}
             />
