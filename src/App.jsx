@@ -21,6 +21,10 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [todayNotes, setTodayNotes] = useState('')
   const [calendarExpanded, setCalendarExpanded] = useState(false)
+  const [guideCollapsed, setGuideCollapsed] = useState(() => {
+    const saved = localStorage.getItem('guideCollapsed2026')
+    return saved === 'true'
+  })
 
   // Export/Backup functionality
   const handleExport = () => {
@@ -743,6 +747,49 @@ function App() {
           <button className="backup-btn" onClick={() => document.getElementById('import-file').click()} title="Import data from backup">
             ↑ Import
           </button>
+        </div>
+
+        {/* User Guide Section */}
+        <div className="user-guide-section">
+          <button
+            className="guide-toggle-btn"
+            onClick={() => {
+              const newState = !guideCollapsed
+              setGuideCollapsed(newState)
+              localStorage.setItem('guideCollapsed2026', newState.toString())
+            }}
+          >
+            <span>📖 How to Use This Planner</span>
+            <span>{guideCollapsed ? '▼' : '▲'}</span>
+          </button>
+          {!guideCollapsed && (
+            <div className="user-guide-content">
+              <div className="guide-step">
+                <span className="step-number">1</span>
+                <p><strong>Set Your Yearly Goal</strong> — Write down one main goal you want to achieve this year at the top of the page.</p>
+              </div>
+              <div className="guide-step">
+                <span className="step-number">2</span>
+                <p><strong>Break It Into Monthly Goals</strong> — In the calendar below, click on the "MG" row to set what you want to accomplish each month that help you reach your yearly goal.</p>
+              </div>
+              <div className="guide-step">
+                <span className="step-number">3</span>
+                <p><strong>Set Weekly Goals</strong> — Click on the "Goal" rows to set smaller weekly targets that help you reach your monthly goals.</p>
+              </div>
+              <div className="guide-step">
+                <span className="step-number">4</span>
+                <p><strong>Plan Tomorrow</strong> — Each evening, write in "Today's Plan" what you want to accomplish the next day.</p>
+              </div>
+              <div className="guide-step">
+                <span className="step-number">5</span>
+                <p><strong>Log Your Day</strong> — At the end of each day, click on today's cell in the calendar. Write what you did, then mark it as <em>Productive</em> or <em>Unproductive</em>.</p>
+              </div>
+              <div className="guide-step">
+                <span className="step-number">6</span>
+                <p><strong>Track Your Progress</strong> — Watch your streaks grow and stay consistent throughout the year!</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

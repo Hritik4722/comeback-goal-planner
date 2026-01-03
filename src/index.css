@@ -1323,6 +1323,86 @@ body {
   background: var(--bg-cream);
 }
 
+/* User Guide Section */
+.user-guide-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px dashed var(--border-light);
+}
+
+.guide-toggle-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-parchment);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.guide-toggle-btn:hover {
+  background: var(--bg-cream);
+  border-color: var(--color-burgundy);
+}
+
+.user-guide-content {
+  margin-top: 16px;
+  padding: 20px;
+  background: var(--bg-parchment);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+}
+
+.guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.guide-step:last-child {
+  margin-bottom: 0;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-burgundy);
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.guide-step p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.guide-step strong {
+  color: var(--text-primary);
+}
+
+.guide-step em {
+  color: var(--color-burgundy);
+  font-style: normal;
+  font-weight: 500;
+}
+
 @media (max-width: 480px) {
   .backup-footer {
     margin-top: 24px;
@@ -1401,5 +1481,37 @@ body {
     right: 4px;
     opacity: 0.7;
     padding: 4px;
+  }
+
+  /* User guide - mobile responsive */
+  .user-guide-section {
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+
+  .guide-toggle-btn {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+
+  .user-guide-content {
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .guide-step {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .step-number {
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+  }
+
+  .guide-step p {
+    font-size: 0.8rem;
+    line-height: 1.45;
   }
 }
