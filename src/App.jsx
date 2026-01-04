@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import './index.css'
 
 const MONTHS = [
@@ -9,8 +9,37 @@ const MONTHS = [
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 const WEEKLY_ROWS = [7, 14, 21, 28]
 
+// Hook to track number of columns based on screen width
+// Matches CSS grid breakpoints: <768px (2 cols), <1200px (4 cols), >=1200px (6 cols)
+const useCalendarColumns = () => {
+  const [cols, setCols] = useState(6)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth
+      if (width < 768) {
+        setCols(2)
+      } else if (width < 1200) {
+        setCols(4)
+      } else {
+        setCols(6)
+      }
+    }
+
+    // Initial check
+    handleResize()
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return cols
+}
+
 function App() {
+  const cols = useCalendarColumns()
   const [goal, setGoal] = useState('')
+
   const [entries, setEntries] = useState({})
   const [weeklyGoals, setWeeklyGoals] = useState({})
   const [monthlyGoals, setMonthlyGoals] = useState({})
@@ -250,7 +279,7 @@ function App() {
     }
     return streak
   }
-  const currentStreak = calculateStreak()
+  const currentStreak = useMemo(() => calculateStreak(), [entries])
 
   // This Month: ACHIEVED days in current month vs elapsed days
   const calculateThisMonth = () => {
@@ -269,7 +298,7 @@ function App() {
     }
     return { achieved: achievedDays, elapsed: currentDay }
   }
-  const thisMonthStats = calculateThisMonth()
+  const thisMonthStats = useMemo(() => calculateThisMonth(), [entries])
 
   // Consistency: percentage of ACHIEVED days over elapsed days
   // elapsed = days from Jan 1, 2026 to today (inclusive)
@@ -297,7 +326,7 @@ function App() {
 
     return Math.round((achievedDays / elapsedDays) * 100)
   }
-  const consistency = calculateConsistency()
+  const consistency = useMemo(() => calculateConsistency(), [entries])
 
   // Status colors for momentum indicators
   const getStreakStatus = () => {
@@ -348,7 +377,7 @@ function App() {
     return rows
   }
 
-  const gridRows = buildGridRows()
+  const gridRows = useMemo(() => buildGridRows(), [])
 
   const getModalTitle = () => {
     if (modalType === 'weekly') {
@@ -554,32 +583,33 @@ function App() {
             </button>
           </div>
 
-          {/* All 12 months in a single grid */}
+          {/* Smart visibility: Only render months that should be visible */}
           <div className="mini-calendars-grid">
-            {MONTHS.map((month, monthIndex) => {
+            {useMemo(() => {
+              // Create array of month objects with their original index
+              const allMonths = MONTHS.map((name, index) => ({ name, index }))
+
+              if (calendarExpanded) {
+                return allMonths
+              }
+
+              // Calculate start index for current month's row
+              const currentMonthIndex = new Date().getMonth()
+              // e.g. Month 4 (May), cols 2 -> row 2. Start = 4. 
+              // e.g. Month 4 (May), cols 6 -> row 0. Start = 0.
+              const startMonth = Math.floor(currentMonthIndex / cols) * cols
+
+              return allMonths.slice(startMonth, startMonth + cols)
+            }, [calendarExpanded, cols]).map(({ name: month, index: monthIndex }) => {
               const daysInMonth = DAYS_IN_MONTH[monthIndex]
               const firstDayOfMonth = new Date(2026, monthIndex, 1).getDay()
-              const currentMonth = new Date().getMonth()
 
-              // Calculate which row this month belongs to for each screen size
-              const mobileRow = Math.floor(monthIndex / 2)  // 2 per row
-              const tabletRow = Math.floor(monthIndex / 3)  // 3 per row
-              const desktopRow = Math.floor(monthIndex / 6) // 6 per row
 
-              // Calculate which row the current month is in
-              const currentMobileRow = Math.floor(currentMonth / 2)
-              const currentTabletRow = Math.floor(currentMonth / 3)
-              const currentDesktopRow = Math.floor(currentMonth / 6)
-
-              // Add classes for visibility control
-              const isCurrentMobileRow = mobileRow === currentMobileRow
-              const isCurrentTabletRow = tabletRow === currentTabletRow
-              const isCurrentDesktopRow = desktopRow === currentDesktopRow
-
+              // Default order - no reordering based on current row
               return (
                 <div
                   key={month}
-                  className={`mini-calendar ${isCurrentMobileRow ? 'current-mobile-row' : ''} ${isCurrentTabletRow ? 'current-tablet-row' : ''} ${isCurrentDesktopRow ? 'current-desktop-row' : ''}`}
+                  className={`mini-calendar`}
                 >
                   <div className="mini-calendar-header">{month.substring(0, 3)}</div>
                   <div className="mini-calendar-weekdays">

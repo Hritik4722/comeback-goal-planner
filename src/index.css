@@ -518,12 +518,8 @@ body {
   gap: 12px;
 }
 
-/* Desktop: Hide all calendars by default, show only current row */
+/* Desktop: Show all rendered calendars (filtered by JS when collapsed) */
 .mini-calendars-grid .mini-calendar {
-  display: none;
-}
-
-.mini-calendars-grid .mini-calendar.current-desktop-row {
   display: block;
 }
 
@@ -1098,14 +1094,9 @@ body {
     gap: 8px;
   }
 
-  /* Hide months 3-6 on mobile when not expanded */
-  .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+3) {
-    display: none;
-  }
-
-  /* Show all when a sibling second-row exists (meaning expanded) */
-  .mini-calendars-section:has(.second-row) .mini-calendars-grid:not(.second-row) .mini-calendar:nth-child(n+3) {
-    display: block;
+  /* Mini calendars grid gap adjustment */
+  .mini-calendars-grid {
+    gap: 8px;
   }
 
   .mini-calendar {
@@ -1575,12 +1566,8 @@ body {
     gap: 10px;
   }
 
-  /* Mobile: Hide all calendars except first row (first 2) by default */
+  /* Mobile: Grid adjustment */
   .mini-calendars-grid .mini-calendar {
-    display: none;
-  }
-
-  .mini-calendars-grid .mini-calendar:nth-child(-n+2) {
     display: block;
   }
 
