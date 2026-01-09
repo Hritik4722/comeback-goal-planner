@@ -110,11 +110,8 @@ function App() {
     event.target.value = ''
   }
 
-  // Get today's date key for notes
-  const getTodayKey = () => {
-    const today = new Date()
-    return `notes-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`
-  }
+  // Persistent key for notes (not date-specific)
+  const getTodayKey = () => 'planner-persistent-notes'
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -709,14 +706,14 @@ function App() {
                   onClick={() => !isSelectedDateFuture() && setModalStatus('success')}
                   disabled={isSelectedDateFuture()}
                 >
-                  Productive day
+                  {modalType === 'daily' ? 'Productive day' : 'Achieved'}
                 </button>
                 <button
                   className={`status-btn failure ${modalStatus === 'failure' ? 'active' : ''} ${isSelectedDateFuture() ? 'disabled' : ''}`}
                   onClick={() => !isSelectedDateFuture() && setModalStatus('failure')}
                   disabled={isSelectedDateFuture()}
                 >
-                  Unproductive day
+                  {modalType === 'daily' ? 'Unproductive day' : 'Not Achieved'}
                 </button>
                 <button
                   className={`status-btn pending ${modalStatus === 'pending' ? 'active' : ''}`}
