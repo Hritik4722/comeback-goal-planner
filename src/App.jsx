@@ -242,6 +242,28 @@ function App() {
     return entries[key]?.status || null
   }
 
+  // Helper: Check if a date is a "missed" day (2+ days ago with no entry)
+  const isMissedDay = (monthIndex, day) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const cellDate = new Date(2026, monthIndex, day)
+    cellDate.setHours(0, 0, 0, 0)
+
+    // Calculate days difference
+    const msPerDay = 24 * 60 * 60 * 1000
+    const daysDiff = Math.floor((today - cellDate) / msPerDay)
+
+    // Only mark as missed if 2+ days ago
+    if (daysDiff < 2) return false
+
+    // Check if there's no entry for this date
+    const key = getCellKey(monthIndex, day)
+    const entry = entries[key]
+
+    // Missed if no entry or entry is pending with no text
+    return !entry || (entry.status === 'pending' && !entry.text)
+  }
+
   // Current Streak: consecutive ACHIEVED days backward from today
   // Stops when hitting a MISSED day (not empty/pending)
   const calculateStreak = () => {
@@ -404,6 +426,7 @@ function App() {
       const isValidDay = row.day <= DAYS_IN_MONTH[monthIndex]
       const key = getCellKey(monthIndex, row.day)
       const entry = entries[key]
+      const missed = isMissedDay(monthIndex, row.day)
 
       if (!isValidDay) {
         return (
@@ -414,14 +437,26 @@ function App() {
         )
       }
 
+      // Determine cell class and content
+      let cellClass = `grid-cell ${entry?.status || ''} ${entry?.text ? 'has-content' : ''}`
+      let cellContent = entry?.text || ''
+      let cellTitle = entry?.text || 'Click to add'
+
+      // If missed day (2+ days ago, no entry), show missed indicator
+      if (missed && !entry?.text) {
+        cellClass = 'grid-cell missed'
+        cellContent = ''
+        cellTitle = 'No entry logged for this day'
+      }
+
       return (
         <div
           key={`cell-${month}-${row.day}`}
-          className={`grid-cell ${entry?.status || ''} ${entry?.text ? 'has-content' : ''}`}
+          className={cellClass}
           onClick={() => handleCellClick(monthIndex, row.day)}
-          title={entry?.text || 'Click to add'}
+          title={cellTitle}
         >
-          {entry?.text || ''}
+          {cellContent}
         </div>
       )
     })
@@ -622,13 +657,19 @@ function App() {
                       const day = i + 1
                       const key = getCellKey(monthIndex, day)
                       const entry = entries[key]
-                      const status = entry?.status || ''
+                      const missed = isMissedDay(monthIndex, day)
+                      let status = entry?.status || ''
+
+                      // If missed day, override status
+                      if (missed && !entry?.text) {
+                        status = 'missed'
+                      }
 
                       return (
                         <span
                           key={day}
                           className={`mini-day ${status}`}
-                          title={`${month} ${day}: ${entry?.text || 'No entry'}`}
+                          title={`${month} ${day}: ${entry?.text || (status === 'missed' ? 'Missed' : 'No entry')}`}
                         >
                           {day}
                         </span>
@@ -675,6 +716,10 @@ function App() {
             <div className="legend-item">
               <div className="legend-color pending"></div>
               <span>Pending</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-color missed"></div>
+              <span>Not Logged</span>
             </div>
 
             <div className="legend-item">

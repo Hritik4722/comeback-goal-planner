@@ -598,6 +598,12 @@ body {
   background: var(--bg-cream);
 }
 
+.mini-day.missed {
+  background: #C4B5A5;
+  color: white;
+  font-weight: 600;
+}
+
 /* Monthly Grid */
 .grid-container {
   overflow-x: auto;
@@ -725,6 +731,26 @@ body {
 
 .grid-cell.failure:hover {
   background: #FFDDDD;
+}
+
+.grid-cell.missed {
+  background: repeating-linear-gradient(-45deg,
+      #F5EDE4,
+      #F5EDE4 4px,
+      #EBE3D9 4px,
+      #EBE3D9 8px);
+  border-left: 3px solid #C4B5A5;
+  color: #A89888;
+  font-size: 1rem;
+  font-weight: 300;
+}
+
+.grid-cell.missed:hover {
+  background: repeating-linear-gradient(-45deg,
+      #EBE3D9,
+      #EBE3D9 4px,
+      #E0D6CA 4px,
+      #E0D6CA 8px);
 }
 
 .grid-cell.has-content {
@@ -957,6 +983,15 @@ body {
 
 .legend-color.pending {
   background: var(--bg-paper);
+}
+
+.legend-color.missed {
+  background: repeating-linear-gradient(-45deg,
+      #F5EDE4,
+      #F5EDE4 2px,
+      #EBE3D9 2px,
+      #EBE3D9 4px);
+  border-left: 3px solid #C4B5A5;
 }
 
 /* Scrollbar */
